@@ -325,7 +325,8 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons', enabled = true },
+      -- vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -577,6 +578,45 @@ require('lazy').setup({
         -- But for many setups, the LSP (`tsserver`) will work just fine
         -- tsserver = {},
         --
+        intelephense = {
+          root_dir = function(startPath)
+            local rp = (require 'lspconfig.util').root_pattern
+            for _, pattern in pairs {
+              '.thisIsDocRoot',
+              'index.php',
+              '.git',
+              'node_modules',
+              'index.php',
+              'composer.json',
+            } do
+              local found = rp { pattern }(startPath)
+              -- print(pattern, found)
+              if found and found ~= '' then
+                return found
+              end
+            end
+            return nil
+          end,
+          settings = {
+            editor = {
+              tabSize = 2,
+              -- spaces not tabs
+              insertSpaces = true,
+              -- the detection is annoying, but this line doesn't seem to stop it.
+              detectIndentation = false,
+            },
+            -- https://github.com/bmewburn/intelephense-docs/blob/master/installation.md
+            intelephense = {
+              files = { associations = { '*.php', '*.module', '*.inc', '*.htm', '*.html' } },
+              format = { braces = 'k&r' }, -- alternative values: psr12 or allman
+            },
+          },
+        },
+        jsonls = {
+          capabilities = capabilities,
+          on_attach = on_attach,
+          filetypes = { 'json', 'jsonc' },
+        },
 
         lua_ls = {
           -- cmd = {...},
@@ -592,6 +632,15 @@ require('lazy').setup({
             },
           },
         },
+        eslint = {},
+        tsserver = {},
+        html = {},
+        phpcs = {},
+        htmlhint = {},
+        jsonls = {},
+        pyright = {},
+        tailwindcss = {},
+        bashls = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -607,6 +656,8 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'phpcbf',
+        'prettier',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -652,6 +703,8 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        php = { 'phpcbf' },
+        html = { 'prettier' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -817,7 +870,7 @@ require('lazy').setup({
       --  and try some other statusline plugin
       local statusline = require 'mini.statusline'
       -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
+      statusline.setup { use_icons = true } --vim.g.have_nerd_font }
 
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
@@ -835,7 +888,27 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'vim',
+        'vimdoc',
+        'json',
+        'javascript',
+        'typescript',
+        'php',
+        'css',
+        'scss',
+        'yaml',
+        'toml',
+        'python',
+        'rust',
+        'go',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -863,6 +936,51 @@ require('lazy').setup({
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
   },
+  {
+    'theHamsta/nvim-dap-virtual-text',
+  },
+
+  {
+
+    'mfussenegger/nvim-dap',
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+      'nvim-neotest/nvim-nio',
+      'rcarriga/nvim-dap-ui',
+    },
+
+    config = function()
+      local debugging_signs = require('util.icons').debugging_signs
+      local dap = require 'dap'
+      local dapui = require 'dapui'
+
+      -- set custom icons
+      for name, sign in pairs(debugging_signs) do
+        sign = type(sign) == 'table' and sign or { sign }
+        vim.fn.sign_define('Dap' .. name, { text = sign[1], texthl = sign[2] or 'DiagnosticInfo', linehl = sign[3], numhl = sign[3] })
+      end
+
+      -- setup dap
+      dapui.setup()
+
+      -- add event listeners
+      dap.listeners.after.event_initialized['dapui_config'] = function()
+        dapui.open()
+        vim.cmd 'Hardtime disable'
+        vim.cmd 'NvimTreeClose'
+      end
+
+      dap.listeners.before.event_terminated['dapui_config'] = function()
+        dapui.close()
+        vim.cmd 'Hardtime enable'
+      end
+
+      dap.listeners.before.event_exited['dapui_config'] = function()
+        dapui.close()
+        vim.cmd 'Hardtime enable'
+      end
+    end,
+  },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
@@ -885,7 +1003,7 @@ require('lazy').setup({
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
