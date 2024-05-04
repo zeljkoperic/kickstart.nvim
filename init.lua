@@ -606,7 +606,6 @@ require('lazy').setup({
               'index.php',
               '.git',
               'node_modules',
-              'index.php',
               'composer.json',
             } do
               local found = rp { pattern }(startPath)
@@ -999,6 +998,55 @@ require('lazy').setup({
         dapui.close()
         vim.cmd 'Hardtime enable'
       end
+      dap.adapters.php = {
+        type = 'executable',
+        command = 'node',
+        args = {
+          vim.loop.os_homedir() .. '/.local/share/nvim/mason/packages/php-debug-adapter/extension/out/phpDebug.js',
+        },
+      }
+      -- Config for a VVV (Vagrant) WordPress site
+      dap.configurations.php = {
+        {
+          type = 'php',
+          request = 'launch',
+          name = 'Listen for VVV Xdebug',
+          port = 9003,
+          localSourceRoot = '~/repos/github.com/zeljkoperic/iptvpanel2/src',
+          -- localSourceRoot = vim.fn.expand("%:p:h").."/",
+          serverSourceRoot = '/opt/iptvpanel2/portal',
+        },
+      }
+      dap.configurations.php = {
+        {
+          name = 'run current script',
+          type = 'php',
+          request = 'launch',
+          port = 9003,
+          cwd = '${fileDirname}',
+          program = '${file}',
+          runtimeExecutable = 'php',
+        },
+        -- to listen to any php call
+        {
+          name = 'listen for Xdebug local',
+          type = 'php',
+          request = 'launch',
+          port = 9003,
+        },
+        -- to listen to php call in docker container
+        {
+          name = 'listen for Xdebug docker',
+          type = 'php',
+          request = 'launch',
+          port = 9003,
+          log = true,
+          -- this is where your file is in the container
+          pathMappings = {
+            ['/opt/iptvpanel2/portal'] = '${workspaceFolder}/src',
+          },
+        },
+      }
     end,
   },
 
@@ -1011,9 +1059,9 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
