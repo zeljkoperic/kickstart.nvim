@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -257,7 +257,6 @@ require('lazy').setup({
       },
     },
   },
-
   {
     'kdheepak/lazygit.nvim',
     cmd = {
@@ -274,7 +273,7 @@ require('lazy').setup({
     -- setting the keybinding for LazyGit with 'keys' is recommended in
     -- order to load the plugin when the command is run for the first time
     keys = {
-      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = '[L]azy[G]it' },
     },
   },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -344,8 +343,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons', enabled = true },
-      -- vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -598,6 +596,21 @@ require('lazy').setup({
         -- But for many setups, the LSP (`tsserver`) will work just fine
         -- tsserver = {},
         --
+
+        lua_ls = {
+          -- cmd = {...},
+          -- filetypes = { ...},
+          -- capabilities = {},
+          settings = {
+            Lua = {
+              completion = {
+                callSnippet = 'Replace',
+              },
+              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+              -- diagnostics = { disable = { 'missing-fields' } },
+            },
+          },
+        },
         intelephense = {
           root_dir = function(startPath)
             local rp = (require 'lspconfig.util').root_pattern
@@ -636,27 +649,11 @@ require('lazy').setup({
           on_attach = on_attach,
           filetypes = { 'json', 'jsonc' },
         },
-
-        lua_ls = {
-          -- cmd = {...},
-          -- filetypes = { ...},
-          -- capabilities = {},
-          settings = {
-            Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
-            },
-          },
-        },
         eslint = {},
         tsserver = {},
         html = {},
         phpcs = {},
         htmlhint = {},
-        jsonls = {},
         pyright = {},
         tailwindcss = {},
         bashls = {},
@@ -677,6 +674,9 @@ require('lazy').setup({
         'stylua', -- Used to format Lua code
         'phpcbf',
         'prettier',
+        'beautysh',
+        'black',
+        'prettierd',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -722,8 +722,6 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        php = { 'phpcbf' },
-        html = { 'prettier' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -731,6 +729,12 @@ require('lazy').setup({
         -- is found.
         -- javascript = { { "prettierd", "prettier" } },
       },
+      php = { 'phpcbf' },
+      html = { 'prettier' },
+      javascript = { { 'prettierd', 'prettier' } },
+      css = { { 'prettierd', 'prettier' } },
+      python = { 'balck' },
+      bash = { 'beautysh' },
     },
   },
 
@@ -783,6 +787,10 @@ require('lazy').setup({
           end,
         },
         completion = { completeopt = 'menu,menuone,noinsert' },
+        window = {
+          completion = cmp.config.window.bordered(),
+          documentation = cmp.config.window.bordered(),
+        },
 
         -- For an understanding of why these mappings were
         -- chosen, you will need to read `:help ins-completion`
@@ -889,7 +897,7 @@ require('lazy').setup({
       --  and try some other statusline plugin
       local statusline = require 'mini.statusline'
       -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = true } --vim.g.have_nerd_font }
+      statusline.setup { use_icons = vim.g.have_nerd_font }
 
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
@@ -959,97 +967,6 @@ require('lazy').setup({
     'theHamsta/nvim-dap-virtual-text',
   },
 
-  {
-
-    'mfussenegger/nvim-dap',
-    dependencies = {
-      'nvim-tree/nvim-web-devicons',
-      'nvim-neotest/nvim-nio',
-      'rcarriga/nvim-dap-ui',
-    },
-
-    config = function()
-      local debugging_signs = require('util.icons').debugging_signs
-      local dap = require 'dap'
-      local dapui = require 'dapui'
-
-      -- set custom icons
-      for name, sign in pairs(debugging_signs) do
-        sign = type(sign) == 'table' and sign or { sign }
-        vim.fn.sign_define('Dap' .. name, { text = sign[1], texthl = sign[2] or 'DiagnosticInfo', linehl = sign[3], numhl = sign[3] })
-      end
-
-      -- setup dap
-      dapui.setup()
-
-      -- add event listeners
-      dap.listeners.after.event_initialized['dapui_config'] = function()
-        dapui.open()
-        vim.cmd 'Hardtime disable'
-        vim.cmd 'NvimTreeClose'
-      end
-
-      dap.listeners.before.event_terminated['dapui_config'] = function()
-        dapui.close()
-        vim.cmd 'Hardtime enable'
-      end
-
-      dap.listeners.before.event_exited['dapui_config'] = function()
-        dapui.close()
-        vim.cmd 'Hardtime enable'
-      end
-      dap.adapters.php = {
-        type = 'executable',
-        command = 'node',
-        args = {
-          vim.loop.os_homedir() .. '/.local/share/nvim/mason/packages/php-debug-adapter/extension/out/phpDebug.js',
-        },
-      }
-      -- Config for a VVV (Vagrant) WordPress site
-      dap.configurations.php = {
-        {
-          type = 'php',
-          request = 'launch',
-          name = 'Listen for VVV Xdebug',
-          port = 9003,
-          localSourceRoot = '~/repos/github.com/zeljkoperic/iptvpanel2/src',
-          -- localSourceRoot = vim.fn.expand("%:p:h").."/",
-          serverSourceRoot = '/opt/iptvpanel2/portal',
-        },
-      }
-      dap.configurations.php = {
-        {
-          name = 'run current script',
-          type = 'php',
-          request = 'launch',
-          port = 9003,
-          cwd = '${fileDirname}',
-          program = '${file}',
-          runtimeExecutable = 'php',
-        },
-        -- to listen to any php call
-        {
-          name = 'listen for Xdebug local',
-          type = 'php',
-          request = 'launch',
-          port = 9003,
-        },
-        -- to listen to php call in docker container
-        {
-          name = 'listen for Xdebug docker',
-          type = 'php',
-          request = 'launch',
-          port = 9003,
-          log = true,
-          -- this is where your file is in the container
-          pathMappings = {
-            ['/opt/iptvpanel2/portal'] = '${workspaceFolder}/src',
-          },
-        },
-      }
-    end,
-  },
-
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -1060,11 +977,11 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.

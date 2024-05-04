@@ -45,7 +45,57 @@ return {
         'php',
       },
     }
+    dap.adapters.php = {
+      type = 'executable',
+      command = 'node',
+      args = {
+        vim.loop.os_homedir() .. '/.local/share/nvim/mason/packages/php-debug-adapter/extension/out/phpDebug.js',
+      },
+    }
+    -- Config for a VVV (Vagrant) WordPress site
+    dap.configurations.php = {
+      {
+        type = 'php',
+        request = 'launch',
+        name = 'Listen for VVV Xdebug',
+        port = 9003,
+        localSourceRoot = '~/repos/github.com/zeljkoperic/iptvpanel2/src',
+        -- localSourceRoot = vim.fn.expand("%:p:h").."/",
+        serverSourceRoot = '/opt/iptvpanel2/portal',
+      },
+    }
 
+    dap.configurations.php = {
+      {
+        name = 'run current script',
+        type = 'php',
+        request = 'launch',
+        port = 9003,
+        cwd = '${fileDirname}',
+        program = '${file}',
+        runtimeExecutable = 'php',
+      },
+      -- to listen to any php call
+      {
+        name = 'listen for Xdebug local',
+        type = 'php',
+        request = 'launch',
+        port = 9003,
+      },
+      -- to listen to php call in docker container
+      {
+        name = 'listen for Xdebug docker',
+        type = 'php',
+        request = 'launch',
+        port = 9003,
+        log = true,
+        -- this is where your file is in the container
+        pathMappings = {
+          ['/opt/iptvpanel2/portal'] = '${workspaceFolder}/src',
+        },
+      },
+    }
+    dap.defaults.php.exception_breakpoints = { 'Notice', 'Warning', 'Error', 'Exception' }
     -- Basic debugging keymaps, feel free to change to your liking!
     vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
     vim.keymap.set('n', '<F1>', dap.step_into, { desc = 'Debug: Step Into' })
