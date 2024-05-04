@@ -166,6 +166,20 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set(
+  'n',
+  '<leader>no',
+  ":lua require('custom.util.scratches').open_scratch_file()<CR>",
+  { desc = '[O]pen todo.md file', noremap = true, silent = true }
+)
+vim.keymap.set(
+  'n',
+  '<leader>nO',
+  ":lua require('custom.util.scratches').open_scratch_file_floating()<CR>",
+  { desc = '[O]pen todo.md file in floating window', noremap = true, silent = true }
+)
+vim.keymap.set('n', '<leader>n', ":lua require('telescope').my_note()<CR>", { desc = 'My [N]otes', noremap = true, silent = true })
+vim.keymap.set('n', '<leader>nn', ':lua NewNote()<CR>', { desc = '[N]ew [N]ote', noremap = true, silent = true })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -224,6 +238,8 @@ vim.opt.rtp:prepend(lazypath)
 --    :Lazy update
 --
 -- NOTE: Here is where you install your plugins.
+require 'custom.util.new_note'
+require 'custom.settings'
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
@@ -274,6 +290,7 @@ require('lazy').setup({
     -- order to load the plugin when the command is run for the first time
     keys = {
       { '<leader>lg', '<cmd>LazyGit<cr>', desc = '[L]azy[G]it' },
+      { '<leader>ll', '<cmd>Lazy<cr>', desc = '[L]azy' },
     },
   },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -295,7 +312,14 @@ require('lazy').setup({
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     config = function() -- This is the function that runs, AFTER loading
-      require('which-key').setup()
+      require('which-key').setup {
+        window = {
+          border = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
+        },
+        triggers_blacklist = {
+          n = { 'd', 'y' },
+        },
+      }
 
       -- Document existing key chains
       require('which-key').register {
@@ -306,6 +330,9 @@ require('lazy').setup({
         ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
         ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
         ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
+        ['<leader>g'] = { name = '[G]it', _ = 'Git stuff' },
+        ['<leader>l'] = { name = '[L]azyGit' },
+        ['<leader>'] = { name = '[ ]', _ = 'Find stuff' },
       }
       -- visual mode
       require('which-key').register({
@@ -434,6 +461,9 @@ require('lazy').setup({
       { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
+      { 'hrsh7th/cmp-nvim-lsp' },
+      { 'hrsh7th/cmp-nvim-lsp' },
+      { 'SmiteshP/nvim-navic' },
 
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
@@ -665,7 +695,16 @@ require('lazy').setup({
       --    :Mason
       --
       --  You can press `g?` for help in this menu.
-      require('mason').setup()
+      require('mason').setup {
+        ui = {
+          border = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
+          icons = {
+            package_installed = '✓',
+            package_pending = '➜',
+            package_uninstalled = '✗',
+          },
+        },
+      }
 
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
@@ -791,6 +830,20 @@ require('lazy').setup({
           completion = cmp.config.window.bordered(),
           documentation = cmp.config.window.bordered(),
         },
+        formatting = {
+          fields = { 'menu', 'abbr', 'kind' },
+          format = function(entry, item)
+            local menu_icon = {
+              nvim_lsp = 'λ',
+              luasnip = '⋗',
+              buffer = 'Ω',
+              path = '🖫',
+            }
+
+            item.menu = menu_icon[entry.source.name]
+            return item
+          end,
+        },
 
         -- For an understanding of why these mappings were
         -- chosen, you will need to read `:help ins-completion`
@@ -809,7 +862,9 @@ require('lazy').setup({
           -- Accept ([y]es) the completion.
           --  This will auto-import if your LSP supports it.
           --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          -- ['<C-y>'] = cmp.mapping.confirm { select = true },
+          -- will use <Tab> to Accept
+          ['<Tab>'] = cmp.mapping.confirm { select = true },
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
@@ -845,9 +900,10 @@ require('lazy').setup({
           --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
         },
         sources = {
+          { name = 'path' },
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
-          { name = 'path' },
+          { name = 'tmux' },
         },
       }
     end,
@@ -954,7 +1010,12 @@ require('lazy').setup({
       require('nvim-treesitter.install').prefer_git = true
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup(opts)
-
+      -- use autotag for auto closing tags
+      require('nvim-treesitter.configs').setup {
+        autotag = {
+          enable = true,
+        },
+      }
       -- There are additional nvim-treesitter modules that you can use to interact
       -- with nvim-treesitter. You should go explore a few and see what interests you:
       --
@@ -977,7 +1038,7 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   require 'kickstart.plugins.debug',
-  require 'kickstart.plugins.indent_line',
+  --  require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
@@ -992,7 +1053,8 @@ require('lazy').setup({
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
-    -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
+    size = { width = 0.9, height = 0.9 },
+    border = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' }, -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
     icons = vim.g.have_nerd_font and {} or {
       cmd = '⌘',
       config = '🛠',
