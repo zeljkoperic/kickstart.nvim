@@ -60,4 +60,7 @@ return {
       }
     end,
   },
+  {
+    'preservim/tagbar',
+  },
 }

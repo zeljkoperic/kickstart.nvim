@@ -519,6 +519,8 @@ require('lazy').setup({
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
           map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          -- Toggle TagbarToggle
+          map('<F8>', ':TagbarToggle<CR>', 'Toggle Tagbar')
 
           -- Find references for the word under your cursor.
           map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -665,12 +667,22 @@ require('lazy').setup({
               -- spaces not tabs
               insertSpaces = true,
               -- the detection is annoying, but this line doesn't seem to stop it.
-              detectIndentation = false,
+              detectIndentation = true,
             },
             -- https://github.com/bmewburn/intelephense-docs/blob/master/installation.md
             intelephense = {
               files = { associations = { '*.php', '*.module', '*.inc', '*.htm', '*.html' } },
-              format = { braces = 'k&r' }, -- alternative values: psr12 or allman
+              environment = {
+                phpVersion = '8.1.22',
+                shortOpenTag = true,
+              },
+              format = { braces = 'psr12' }, -- alternative values: psr12 or allman
+              completion = {
+                insertUseDeclaration = true,
+                fullyQualifyGlobalConstantsAndFunctions = false,
+                triggerParameterHints = true,
+                maxItems = 100,
+              },
             },
           },
         },
@@ -718,7 +730,6 @@ require('lazy').setup({
         'prettierd',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
-
       require('mason-lspconfig').setup {
         handlers = {
           function(server_name)
