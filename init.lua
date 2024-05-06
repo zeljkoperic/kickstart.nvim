@@ -242,7 +242,7 @@ require 'custom.util.new_note'
 require 'custom.settings'
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  --  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -291,6 +291,10 @@ require('lazy').setup({
     keys = {
       { '<leader>lg', '<cmd>LazyGit<cr>', desc = '[L]azy[G]it' },
       { '<leader>ll', '<cmd>Lazy<cr>', desc = '[L]azy' },
+      { '<leader>lm', '<cmd>Mason<cr>', desc = '[M]ason' },
+      { '<leader>lc', '<cmd>Copilot panel<cr>', desc = '[C]opilot panel' },
+      { '<leader>ld', '<cmd>DBUIToggle<cr>', desc = '[D]B UI Toggle' },
+      { '<leader>lt', '<cmd>NvimTreeToggle<cr>', desc = 'NVIM [T]ree Toggle' },
     },
   },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
@@ -628,7 +632,7 @@ require('lazy').setup({
         -- But for many setups, the LSP (`tsserver`) will work just fine
         -- tsserver = {},
         --
-
+        markdownlint = {},
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
