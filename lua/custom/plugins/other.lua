@@ -1,81 +1,76 @@
 return {
-  { 'tpope/vim-sleuth', enabled = false },
+  { "tpope/vim-sleuth", enabled = false },
   {
-    'jeffkreeftmeijer/vim-numbertoggle',
+    "jeffkreeftmeijer/vim-numbertoggle",
     lazy = false,
   },
   {
-    'brenoprata10/nvim-highlight-colors',
-    event = 'VeryLazy',
+    "brenoprata10/nvim-highlight-colors",
+    event = "VeryLazy",
     config = function()
-      require('nvim-highlight-colors').setup {}
+      require("nvim-highlight-colors").setup {}
     end,
   },
   {
-    'FabijanZulj/blame.nvim',
+    "FabijanZulj/blame.nvim",
     lazy = false,
     keys = {
-      { '<leader>gb', '<cmd>BlameToggle virtual<CR>', desc = '[G]it [b]lame' },
+      { "<leader>gb", "<cmd>BlameToggle virtual<CR>", desc = "[G]it [b]lame" },
     },
     config = function()
-      require('blame').setup()
+      require("blame").setup()
     end,
   },
   {
-    'sindrets/diffview.nvim',
+    "sindrets/diffview.nvim",
     lazy = true,
-    cmd = { 'DiffviewOpen', 'DiffviewClose' },
+    cmd = { "DiffviewOpen", "DiffviewClose" },
     keys = {
       {
-        '<leader>gd',
+        "<leader>gd",
         function()
-          if next(require('diffview.lib').views) == nil then
-            vim.cmd 'DiffviewOpen'
+          if next(require("diffview.lib").views) == nil then
+            vim.cmd "DiffviewOpen"
           else
-            vim.cmd 'DiffviewClose'
+            vim.cmd "DiffviewClose"
           end
         end,
-        desc = '[G]it [d]iff',
+        desc = "[G]it [d]iff",
       },
     },
     config = function()
-      require('diffview').setup {
+      require("diffview").setup {
         view = {
           file_history = {
-            layout = 'diff2_vertical',
+            layout = "diff2_vertical",
           },
         },
       }
     end,
   },
   {
-    'gen740/SmoothCursor.nvim',
-    event = 'VeryLazy',
+    "gen740/SmoothCursor.nvim",
+    event = "VeryLazy",
     config = function()
-      require('smoothcursor').setup {
+      require("smoothcursor").setup {
         disable_float_win = true,
-        disabled_filetypes = { 'TelescopePrompt' },
-        cursor = '',
-        texthl = 'String',
+        disabled_filetypes = { "TelescopePrompt" },
+        cursor = "",
+        texthl = "String",
       }
     end,
   },
   {
-    'preservim/tagbar',
+    "preservim/tagbar",
   },
   {
-    'liuchengxu/vista.vim',
-    --TODO: uraditi check za ctags pa tek onda enable vista
-    --    enabled = function()
-    --      if utils.executable 'ctags' then
-    --        return true
-    --      else
-    --        return false
-    --      end
-    --    end,
-    cmd = 'Vista',
+    "liuchengxu/vista.vim",
+    cmd = "Vista",
+    keys = {
+      { "<leader>tv", "<cmd>Vista<CR>", desc = "[V]ista" },
+    },
   },
   {
-    'theHamsta/nvim-dap-virtual-text',
+    "theHamsta/nvim-dap-virtual-text",
   },
 }
