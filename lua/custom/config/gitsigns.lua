@@ -1,5 +1,5 @@
-local gitsigns = require "gitsigns"
-gitsigns.setup {
+local gits = require "gitsigns"
+gits.setup {
   signs = {
     add = { text = "+" },
     change = { text = "~" },

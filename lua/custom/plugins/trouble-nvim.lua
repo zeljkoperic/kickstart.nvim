@@ -1,9 +1,9 @@
-local diagnostic_signs = require('util.icons').diagnostic_signs
-local maplazykey = require('util.keymapper').maplazykey
+local diagnostic_signs = require("util.icons").diagnostic_signs
+local maplazykey = require("util.keymapper").maplazykey
 
 return {
-  'folke/trouble.nvim',
-  dependencies = { 'nvim-tree/nvim-web-devicons' },
+  "folke/trouble.nvim",
+  dependencies = { "nvim-tree/nvim-web-devicons", "folke/todo-comments.nvim" },
   opts = {
     signs = {
       -- icons / text used for a diagnostic
@@ -15,23 +15,24 @@ return {
     },
   },
   keys = {
-    maplazykey('<leader>xx', function()
-      require('trouble').toggle()
-    end, 'Toggle Trouble'),
-    maplazykey('<leader>xw', function()
-      require('trouble').toggle 'workspace_diagnostics'
-    end, 'Show Workspace Diagnostics'),
-    maplazykey('<leader>xd', function()
-      require('trouble').toggle 'document_diagnostics'
-    end, 'Show Document Diagnostics'),
-    maplazykey('<leader>xq', function()
-      require('trouble').toggle 'quickfix'
-    end, 'Toggle Quickfix List'),
-    maplazykey('<leader>xl', function()
-      require('trouble').toggle 'loclist'
-    end, 'Toggle Location List'),
-    maplazykey('gR', function()
-      require('trouble').toggle 'lsp_references'
-    end, 'Toggle LSP References'),
+    maplazykey("<leader>xx", function()
+      require("trouble").toggle()
+    end, "Toggle Trouble"),
+    maplazykey("<leader>xw", function()
+      require("trouble").toggle "workspace_diagnostics"
+    end, "Show Workspace Diagnostics"),
+    maplazykey("<leader>xd", function()
+      require("trouble").toggle "document_diagnostics"
+    end, "Show Document Diagnostics"),
+    maplazykey("<leader>xq", function()
+      require("trouble").toggle "quickfix"
+    end, "Toggle Quickfix List"),
+    maplazykey("<leader>xl", function()
+      require("trouble").toggle "loclist"
+    end, "Toggle Location List"),
+    maplazykey("gR", function()
+      require("trouble").toggle "lsp_references"
+    end, "Toggle LSP References"),
+    { "<leader>xo", "<cmd>TroubleToggle<CR>", desc = "Open/close trouble list" },
   },
 }
