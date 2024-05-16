@@ -6,7 +6,10 @@ return {
     'MunifTanjim/nui.nvim',
     'nvim-lua/plenary.nvim',
   },
-  opts = {
-    disable_mouse = false,
-  },
+  -- opts = {
+  --   disable_mouse = false,
+  -- },
+  config = function()
+    require 'custom.config.hardtime'
+  end,
 }
