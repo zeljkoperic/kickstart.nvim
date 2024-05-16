@@ -63,4 +63,19 @@ return {
   {
     'preservim/tagbar',
   },
+  {
+    'liuchengxu/vista.vim',
+    --TODO: uraditi check za ctags pa tek onda enable vista
+    --    enabled = function()
+    --      if utils.executable 'ctags' then
+    --        return true
+    --      else
+    --        return false
+    --      end
+    --    end,
+    cmd = 'Vista',
+  },
+  {
+    'theHamsta/nvim-dap-virtual-text',
+  },
 }
