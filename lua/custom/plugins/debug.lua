@@ -19,6 +19,10 @@ return {
   config = function()
     local dap = require "dap"
     local dapui = require "dapui"
+    local sign = vim.fn.sign_define
+    sign("DapBreakpoint", { text = "●", texthl = "DapBreakpoint", linehl = "", numhl = "" })
+    sign("DapBreakpointCondition", { text = "●", texthl = "DapBreakpointCondition", linehl = "", numhl = "" })
+    sign("DapLogPoint", { text = "◆", texthl = "DapLogPoint", linehl = "", numhl = "" })
 
     require("mason-nvim-dap").setup {
       -- Makes a best effort to setup the various debuggers with
@@ -33,7 +37,6 @@ return {
       -- online, please don't ask me how to install them :)
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
-        "delve",
         "php",
       },
     }
@@ -118,6 +121,31 @@ return {
           disconnect = "⏏",
         },
       },
+
+      layouts = {
+        {
+          elements = {
+            -- Elements can be strings or table with id and size keys.
+            { id = "scopes",      size = 0.4 },
+            { id = "breakpoints", size = 0.15 },
+            { id = "stacks",      size = 0.25 },
+            { id = "watches",     size = 0.20 },
+          },
+          size = 60,
+          position = "left",
+        },
+        {
+          elements = {
+            { id = "repl",    size = 0.4 },
+            { id = "console", size = 0.6 },
+          },
+          size = 20,
+          position = "bottom",
+        },
+      },
+      size = 65,
+      position = "left", -- Can be "left", "right", "top", "bottom"
+      expand_lines = false,
     }
 
     -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
