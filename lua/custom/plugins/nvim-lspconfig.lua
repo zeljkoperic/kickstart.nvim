@@ -146,7 +146,7 @@ return {
           "dockerls",
           "eslint",
           "ltex",
-          "groovyls",
+          --"groovyls",
           "helm_ls",
           "html",
           "jsonls",
@@ -154,7 +154,7 @@ return {
           "tsserver",
           "yamlls",
           "pylsp",
-          "ruff_lsp",
+          --"ruff_lsp",
           "taplo",
           "marksman",
         },
@@ -218,7 +218,7 @@ return {
         end,
         settings = {
           editor = {
-            tabSize = 2,
+            tabSize = 4,
             -- spaces not tabs
             insertSpaces = true,
             -- the detection is annoying, but this line doesn't seem to stop it.

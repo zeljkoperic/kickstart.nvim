@@ -11,7 +11,7 @@ return {
       vim.api.nvim_exec(
         [[
 function OpenMarkdownPreview (url)
-    execute "silent ! open -a Firefox " . a:url
+    execute "silent ! open -a Firefox\\ Developer\\ Edition " . a:url
 endfunction
 ]],
         false
